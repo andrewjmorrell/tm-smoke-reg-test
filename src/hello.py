@@ -15,4 +15,7 @@ print("third line")
 #   Sources: https://docs.python.org/3/library/functions.html#print  Retrieved: 2026-09-03
 def print_4th_line():
     print("4th line")
+
+print("5th line")
+print("6th line")
 # PROVENANCE-END: BOILERPLATE
