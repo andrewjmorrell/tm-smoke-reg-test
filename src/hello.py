@@ -18,4 +18,5 @@ def print_4th_line():
 
 print("5th line")
 print("6th line")
+print("8th line")
 # PROVENANCE-END: BOILERPLATE
