@@ -1,0 +1,13 @@
+{
+  "policy": "regulated",
+  "note": "Approved/preferred sources for AI-assisted work. Maintained centrally; edit in one place.",
+  "priority": ["approved-internal", "authoritative-public", "broader-web"],
+  "sources": [
+    {"name": "Company platform monorepo", "type": "repo", "tier": "approved-internal",
+     "locator": "github.com/ThroughMarkLabs/platform", "notes": "internal APIs + shared libs"},
+    {"name": "Internal engineering docs", "type": "internal-doc", "tier": "approved-internal",
+     "locator": "https://docs.internal.example/eng", "notes": "architecture, standards, ADRs"},
+    {"name": "Kotlin stdlib reference", "type": "vendor-doc", "tier": "authoritative-public",
+     "locator": "https://kotlinlang.org/api/latest/jvm/stdlib/"}
+  ]
+}

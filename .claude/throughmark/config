@@ -1,0 +1,23 @@
+# ThroughMark clean-room config (read by ci/check_provenance.sh; honored by the guardrail/tag skill).
+DDR_DIR=docs/ddr              # one file per Design Decision Record (merge-safe under concurrency)
+DDR_LOG=docs/DDR.md           # legacy single-file log; still read if present (pre-migration repos)
+TRACE_SOURCE=ticket           # ticket | branch | none — seed the Trace id from the work-item key (unique)
+SESSION_SUMMARY=off           # on | off — end-of-session summary
+# --- Vendor enablement (public product docs & official repos) ---
+ENABLEMENT=on                 # on | off — allow the guardrail's Vendor Enablement lane
+ENABLEMENT_ALLOWLIST=         # optional path to a file of approved vendor domains / GitHub orgs (one per line).
+                              # EMPTY (default) = NO allowlist: any qualifying vendor source is allowed (broad).
+                              # Set a path to pin to listed vendors AND have the gate enforce membership.
+                              # Format: see assets/enablement-allowlist.example
+                              # Governs in-repo vendor fences only; advisory/discovery answers are never gated.
+
+# --- Tier 2 (two-room screening) only; NOT used by the single-room MVP ---
+# CORPUS_DIR=ci/reference-corpus
+# TOKEN_THRESHOLD=15
+
+# --- Validity sign-off (regulated) — read by the validity-signoff skill's helper (scripts/signoff_tool.sh) ---
+# Where a reviewer's immutable validity sign-off record is written. If SINK_BUCKET is unset but PROJECT is,
+# the bucket defaults to ${PROJECT}-ai-logs. If neither is set, the commit status still posts but the record
+# is not captured from the terminal — approve in the web UI instead (the gate always records that).
+# SINK_BUCKET=<project>-ai-logs
+# PROJECT=<gcp-project-id>

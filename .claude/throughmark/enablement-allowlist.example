@@ -1,0 +1,12 @@
+# ThroughMark — approved vendor enablement sources (OPTIONAL).
+# One host / GitHub org / URL-fragment per line; blank lines and #-comments are ignored.
+# A vendor-derived fence passes when its Source:/URL: CONTAINS any line below (substring match).
+#
+# Leaving ENABLEMENT_ALLOWLIST empty in the config means NO restriction — any qualifying vendor
+# source is allowed. Use this file only if you deliberately want to pin to specific vendors; the
+# guardrail's own qualification rules (vendor-published, public, licensed) still apply either way.
+#
+# Examples only — replace/delete; not an endorsement and not a limit on which vendors are allowed:
+# github.com/<vendor-org>
+# docs.<vendor>.com
+# <vendor>.com
