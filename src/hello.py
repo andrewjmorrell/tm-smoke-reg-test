@@ -10,3 +10,9 @@ print("another line"
 # PROVENANCE-BEGIN: HUMAN-AUTHORED  Developer: andrewjmorrell  Date: 2026-09-03  Trace: T-ic1ftz  DDR: DDR-uy6fh5
 print("third line")
 # PROVENANCE-END: HUMAN-AUTHORED
+
+# PROVENANCE-BEGIN: BOILERPLATE  Agent: claude-code/claude-opus-4-7  Trace: T-ic1ftz
+#   Sources: https://docs.python.org/3/library/functions.html#print  Retrieved: 2026-09-03
+def print_4th_line():
+    print("4th line")
+# PROVENANCE-END: BOILERPLATE
