@@ -35,3 +35,15 @@ existing one use `update-ddr`.
 - `Conceived-by: human` always. One decision per file. Ids are random base36, never a running counter.
 
 *Authoring aid. The gate requires each referenced id to resolve to a record with a non-empty Rationale and Conceived-by: human.*
+
+## Signing (works inside an IDE plugin — no TTY, no agent needed)
+DDR conception signing runs where you run the skill — a Claude plugin inside your IDE (Antigravity, VS
+Code, Android Studio). That process has no terminal and usually no ssh-agent, so signing does **not**
+require either: `sign_ddr.sh` picks the first key that can sign with no prompt, and if none exists it
+**auto-provisions a dedicated, passphrase-less, signing-only key** (`~/.ssh/throughmark_ed25519`) and
+registers its public key in `allowed_signers` for the gate. So signing normally just works.
+
+If signing ever fails, the DDR **content is still saved correctly** — only the `<ddr>.md.att.json`
+signature is missing; re-run `bash .claude/throughmark/bin/sign_ddr.sh <ddr-file>`. Signing is advisory
+until the client enables ATTEST_ENFORCE. Hardened alternative: set `TM_SIGN_NO_AUTOKEY=1` to require an
+agent-loaded or hardware key instead of the auto-provisioned one (then load your key with `ssh-add`).

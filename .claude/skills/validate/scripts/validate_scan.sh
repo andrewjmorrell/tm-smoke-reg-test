@@ -17,19 +17,26 @@ REGULATED=0
 [ "$REGULATED" = 0 ] && grep -qiE 'cite an external source|prove TRACEABILITY' AGENTS.md 2>/dev/null && REGULATED=1
 
 TARGET="${1:-}"
-file_list(){
+# ThroughMark machinery (the kit itself) + build output are never developer product code — exclude them
+# so validation only concerns code the developer actually touches.
+excluded(){ case "$1" in
+  .claude/*|*/.claude/*|.gemini/*|*/.gemini/*|docs/ddr/*|*/docs/ddr/*|.mcp.json|*/.mcp.json|AGENTS.md|*/AGENTS.md|GEMINI.md|*/GEMINI.md|.aiexclude|*/.aiexclude|.github/copilot-instructions.md|*/.github/copilot-instructions.md|.github/instructions/*|*/.github/instructions/*) return 0;;
+  */.git/*|*/vendor/*|*/node_modules/*|*/.cache/*|*/_reports/*|*/build/*|*/dist/*|*/out/*|*/target/*|*/.gradle/*|*/.idea/*|*/generated/*|*/__pycache__/*|*/.venv/*|*/venv/*|*/reference-corpus/*) return 0;;
+  *) return 1;; esac; }
+_raw_list(){
   if [ "$TARGET" = "--all" ]; then git ls-files 2>/dev/null; git ls-files --others --exclude-standard 2>/dev/null
   elif [ -n "$TARGET" ] && [ -e "$TARGET" ]; then
     if [ -d "$TARGET" ]; then find "$TARGET" -type f 2>/dev/null; else printf '%s\n' "$TARGET"; fi
   else git diff --name-only "${BASE:-origin/main}"...HEAD 2>/dev/null || git ls-files 2>/dev/null; fi
 }
+file_list(){ _raw_list | while IFS= read -r _f; do [ -n "$_f" ] || continue; excluded "$_f" && continue; printf '%s\n' "$_f"; done; }
 
 # UNTAGGED files (reuse the tag skill's scanner if present)
 UT=".claude/skills/tag/scripts/scan_untagged.sh"
 if [ -x "$UT" ] || [ -f "$UT" ]; then
   file_list | sort -u | while IFS= read -r f; do
     [ -f "$f" ] || continue
-    if bash "$UT" "$f" 2>/dev/null | grep -q .; then printf 'UNTAGGED\t%s\t has unfenced code — run /tag to label it\n' "$f"; fi
+    if bash "$UT" "$f" 2>/dev/null | grep -q '^UNTAGGED'; then printf 'UNTAGGED\t%s\t has unfenced code — run /tag to label it\n' "$f"; fi
   done
 fi
 
