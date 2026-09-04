@@ -1,0 +1,1 @@
+print('machinery exclusion test')

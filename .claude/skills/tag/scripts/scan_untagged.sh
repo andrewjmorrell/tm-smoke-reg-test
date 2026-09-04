@@ -12,6 +12,9 @@ set -euo pipefail
 is_code(){ case "$1" in
   *.py|*.js|*.ts|*.tsx|*.jsx|*.java|*.kt|*.kts|*.go|*.c|*.h|*.cc|*.cpp|*.cxx|*.hpp|*.cs|*.rs|*.rb|*.sh|*.bash|*.sql|*.hs|*.swift|*.scala|*.php) return 0;; *) return 1;; esac; }
 excluded(){ case "$1" in
+  # ThroughMark machinery (the kit itself) — never developer product code
+  .claude/*|*/.claude/*|.gemini/*|*/.gemini/*|docs/ddr/*|*/docs/ddr/*|.mcp.json|*/.mcp.json|AGENTS.md|*/AGENTS.md|GEMINI.md|*/GEMINI.md|.aiexclude|*/.aiexclude|.github/copilot-instructions.md|*/.github/copilot-instructions.md|.github/instructions/*|*/.github/instructions/*) return 0;;
+  # build output / deps / editor cruft
   */.git/*|*/vendor/*|*/node_modules/*|*/.cache/*|*/_reports/*|*/build/*|*/dist/*|*/out/*|*/target/*|*/.gradle/*|*/.idea/*|*/generated/*|*/__pycache__/*|*/.venv/*|*/venv/*|*/reference-corpus/*) return 0;; *) return 1;; esac; }
 
 TARGET="${1:-}"

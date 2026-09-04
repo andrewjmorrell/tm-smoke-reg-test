@@ -83,3 +83,8 @@ working: re-review and re-sign the new head.
 *Process aid for the regulated clean-room workflow. Not legal advice. The commit status, the immutable
 sink record, and (if signed) the SSHSIG attestation are the independent audit evidence; branch protection
 requires this check before merge.*
+
+## Signing (ssh-agent)
+The optional SSHSIG attestation runs non-interactively — load a passphrase-protected key into the
+agent once (`ssh-add ~/.ssh/id_ed25519`; macOS `--apple-use-keychain`) or the sign-off is recorded
+without the extra signature (still valid; the status + sink record are what the gate checks).

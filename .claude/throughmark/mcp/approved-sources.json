@@ -1,13 +1,13 @@
 {
   "policy": "regulated",
-  "note": "Approved/preferred sources for AI-assisted work. Maintained centrally; edit in one place.",
+  "note": "Approved sources for AI-assisted work — maintained centrally.",
   "priority": ["approved-internal", "authoritative-public", "broader-web"],
   "sources": [
-    {"name": "Company platform monorepo", "type": "repo", "tier": "approved-internal",
-     "locator": "github.com/ThroughMarkLabs/platform", "notes": "internal APIs + shared libs"},
-    {"name": "Internal engineering docs", "type": "internal-doc", "tier": "approved-internal",
-     "locator": "https://docs.internal.example/eng", "notes": "architecture, standards, ADRs"},
-    {"name": "Kotlin stdlib reference", "type": "vendor-doc", "tier": "authoritative-public",
-     "locator": "https://kotlinlang.org/api/latest/jvm/stdlib/"}
+    {"name": "All andrewjmorrell repositories", "type": "repo", "tier": "approved-internal",
+     "locator": "github.com/andrewjmorrell", "notes": "every repo owned by andrewjmorrell (owner-scope search)"},
+    {"name": "Requests (HTTP for Humans)", "type": "repo", "tier": "authoritative-public",
+     "locator": "github.com/psf/requests", "notes": "reference HTTP client patterns"},
+    {"name": "Python standard library reference", "type": "vendor-doc", "tier": "authoritative-public",
+     "locator": "https://docs.python.org/3/library/"}
   ]
 }

@@ -54,16 +54,38 @@ def statement_validity(repo, pr, head_sha, verdict, source, role):
 
 
 def sshsig_sign(message: bytes, key_path: str) -> str:
+    """Sign via SSHSIG. Prefer the ssh-agent so a passphrase-protected key signs NON-INTERACTIVELY
+    (the way skills run): ssh-keygen -Y sign can sign with the PUBLIC key while the agent holds the
+    private key — no passphrase prompt. Fall back to the private-key file (which prompts if encrypted).
+    stdin is /dev/null throughout so an encrypted key with no agent fails FAST with a clear error instead
+    of hanging on an un-answerable passphrase prompt."""
+    key_path = os.path.expanduser(key_path)
+    pub = key_path + ".pub"
+    candidates = []
+    if os.environ.get("SSH_AUTH_SOCK") and os.path.exists(pub):
+        candidates.append(pub)        # agent path — no passphrase needed
+    candidates.append(key_path)       # private-key file — prompts if encrypted (interactive only)
+    last = ""
     with tempfile.TemporaryDirectory() as d:
         msg = os.path.join(d, "m")
         with open(msg, "wb") as f:
             f.write(message)
-        r = subprocess.run(["ssh-keygen", "-Y", "sign", "-f", os.path.expanduser(key_path),
-                            "-n", NAMESPACE, msg], capture_output=True)
-        if r.returncode != 0:
-            raise RuntimeError("ssh-keygen sign failed: " + r.stderr.decode()[:300])
-        with open(msg + ".sig", encoding="utf-8") as f:
-            return f.read()
+        for f in candidates:
+            sig = msg + ".sig"
+            try:
+                os.path.exists(sig) and os.remove(sig)
+            except OSError:
+                pass
+            r = subprocess.run(["ssh-keygen", "-Y", "sign", "-f", f, "-n", NAMESPACE, msg],
+                               capture_output=True, stdin=subprocess.DEVNULL)
+            if r.returncode == 0 and os.path.exists(sig):
+                with open(sig, encoding="utf-8") as fh:
+                    return fh.read()
+            last = r.stderr.decode()[:300]
+    raise RuntimeError(
+        "ssh-keygen sign failed: " + last +
+        " | If your signing key has a passphrase, load it into the agent once and retry: "
+        "`ssh-add " + key_path + "` (macOS: `ssh-add --apple-use-keychain " + key_path + "`).")
 
 
 def sshsig_verify(message: bytes, sig_armored: str, identity: str, allowed_signers: str) -> bool:
