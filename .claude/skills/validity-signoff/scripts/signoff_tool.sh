@@ -11,6 +11,8 @@
 #                                [--source-version "<edition/rev>"] [--role "<your qualification>"] \
 #                                [--notes "..."] [--repo <owner/name>]
 set -euo pipefail
+py_is3(){ "$1" -c "import sys; sys.exit(0 if sys.version_info[0]==3 else 1)" >/dev/null 2>&1; }; PY=""; for _c in python3 python; do _p="$(command -v "$_c" 2>/dev/null || true)"; [ -n "$_p" ] && py_is3 "$_p" && { PY="$_p"; break; }; done
+[ -n "$PY" ] || { echo "no runnable python3 found (need Python 3)"; exit 1; }
 
 CFG=".claude/throughmark/config"
 SINK_BUCKET="${SINK_BUCKET:-}"; PROJECT="${PROJECT:-}"
@@ -58,7 +60,7 @@ fi
 
 TS="$(date -u +%FT%TZ)"
 REC="$(mktemp).json"
-python3 - "$REC" "$SLUG" "$PR" "$HEAD_SHA" "$REVIEWER" "$AUTHOR" "$ROLE" "$VERDICT" "$SOURCE" "$SVER" "$NOTES" "$TS" <<'PY'
+"$PY" - "$REC" "$SLUG" "$PR" "$HEAD_SHA" "$REVIEWER" "$AUTHOR" "$ROLE" "$VERDICT" "$SOURCE" "$SVER" "$NOTES" "$TS" <<'PY'
 import sys, json
 out,slug,pr,sha,rev,author,role,verdict,src,sver,notes,ts = sys.argv[1:13]
 json.dump({"kind":"validity-signoff","repo":slug,"pr_number":int(pr),"head_sha":sha,
@@ -72,10 +74,10 @@ SIGNKEY="${TM_SIGN_KEY:-$(git config user.signingkey 2>/dev/null || echo '')}"; 
 ATTEST_BIN=".claude/throughmark/bin/attest.py"
 if [ -n "$SIGNKEY" ] && [ -f "$SIGNKEY" ] && [ -f "$ATTEST_BIN" ]; then
   ATT="$(mktemp).json"
-  if python3 "$ATTEST_BIN" sign-validity --repo "$SLUG" --pr "$PR" --head "$HEAD_SHA" \
+  if "$PY" "$ATTEST_BIN" sign-validity --repo "$SLUG" --pr "$PR" --head "$HEAD_SHA" \
        --verdict "$VERDICT" --source "$SOURCE" --role "$ROLE" \
        --key "$SIGNKEY" --identity "$REVIEWER" --out "$ATT" >/dev/null 2>&1; then
-    python3 - "$REC" "$ATT" <<'PY2'
+    "$PY" - "$REC" "$ATT" <<'PY2'
 import sys, json
 rec = json.load(open(sys.argv[1])); rec["attestation"] = json.load(open(sys.argv[2]))
 json.dump(rec, open(sys.argv[1], "w"), indent=2)

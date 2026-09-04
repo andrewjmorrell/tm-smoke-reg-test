@@ -1,0 +1,25 @@
+{
+  "statement": {
+    "_type": "https://in-toto.io/Statement/v1",
+    "subject": [
+      {
+        "name": "DDR-rrh9hx",
+        "digest": {
+          "sha256": "5768e96806e387ada9b31bd4b6a881f19ead983a3c797cd8132944d12a04f793"
+        }
+      }
+    ],
+    "predicateType": "https://throughmark.dev/conception/v1",
+    "predicate": {
+      "conceived_by": "human",
+      "developer": "andrewjmorrell@gmail.com",
+      "trace": "T-srcdemo",
+      "attested_at": "2026-09-04T21:46:22Z"
+    }
+  },
+  "signature": {
+    "identity": "andrewjmorrell@gmail.com",
+    "namespace": "throughmark",
+    "sshsig": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgLUtiHN0bHil01WesQoNpMoS4Sw\ndqHjIMqMwqwyB3JG0AAAALdGhyb3VnaG1hcmsAAAAAAAAABnNoYTUxMgAAAFMAAAALc3No\nLWVkMjU1MTkAAABAk+8u7gQsKG0GRsu4sFkQzr39r2Hbs2omBnIKLq323fNmnlz3ZwEcPd\nsqvprrVJcc69KCs6YmWA7txGgv3kFMBQ==\n-----END SSH SIGNATURE-----\n"
+  }
+}
