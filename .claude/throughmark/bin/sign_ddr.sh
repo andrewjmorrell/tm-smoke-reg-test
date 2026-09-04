@@ -12,6 +12,8 @@ DDR="${1:?usage: sign_ddr.sh <ddr-file> [--trace T]}"; shift || true
 TRACE=""; [ "${1:-}" = "--trace" ] && TRACE="${2:-}"
 [ -f "$DDR" ] || { echo "no such DDR: $DDR"; exit 1; }
 command -v ssh-keygen >/dev/null || { echo "note: ssh-keygen not found — DDR left unsigned (advisory)."; exit 0; }
+py_is3(){ "$1" -c "import sys; sys.exit(0 if sys.version_info[0]==3 else 1)" >/dev/null 2>&1; }; PY=""; for _c in python3 python; do _p="$(command -v "$_c" 2>/dev/null || true)"; [ -n "$_p" ] && py_is3 "$_p" && { PY="$_p"; break; }; done
+[ -n "$PY" ] || { echo "note: no runnable python3 — DDR left unsigned (advisory)."; exit 0; }
 
 ID="$(git config user.email 2>/dev/null || echo "${USER:-dev}")"
 KEY="${TM_SIGN_KEY:-$(git config user.signingkey 2>/dev/null || echo "$HOME/.ssh/id_ed25519")}"; KEY="${KEY%.pub}"
@@ -32,5 +34,5 @@ if [ -n "$PUB" ] && ! grep -q "^$ID " "$REG" 2>/dev/null; then
   echo "→ registered $ID in .claude/throughmark/allowed_signers (commit it — reviewers see new signers)"
 fi
 
-python3 "$HERE/attest.py" sign-ddr "$DDR" --key "$KEY" --identity "$ID" ${TRACE:+--trace "$TRACE"} --out "$DDR.att.json"
+"$PY" "$HERE/attest.py" sign-ddr "$DDR" --key "$KEY" --identity "$ID" ${TRACE:+--trace "$TRACE"} --out "$DDR.att.json"
 echo "→ signed $DDR → $DDR.att.json  (commit BOTH, together)"

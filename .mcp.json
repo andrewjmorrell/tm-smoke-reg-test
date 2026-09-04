@@ -3,7 +3,10 @@
     "throughmark-sources": {
       "command": "python3",
       "args": [".claude/throughmark/mcp/throughmark_sources_mcp.py"],
-      "env": { "TM_SOURCES_URI": "gs://throughmark-smoke-reg-607-config/approved-sources.json", "TM_SINK_BUCKET": "throughmark-smoke-reg-607-ai-logs" }
+      "env": { 
+	"TM_SOURCES_URI": "gs://throughmark-smoke-reg-607-config/approved-sources.json", 
+	"TM_SINK_BUCKET": "throughmark-smoke-reg-607-ai-logs" 
+      }
     }
   }
 }

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__throughmark-sources__list_approved_sources",
+      "mcp__throughmark-sources__search_approved_sources",
+      "Bash(bash .claude/throughmark/bin/sign_ddr.sh:*)",
+      "Bash(bash .claude/skills/tag/scripts/scan_untagged.sh:*)",
+      "Bash(bash .claude/skills/update-ddr/scripts/ddr_tool.sh:*)",
+      "Bash(bash .claude/skills/validity-signoff/scripts/signoff_tool.sh:*)",
+      "Bash(bash .claude/skills/validate/scripts/validate_scan.sh:*)"
+    ]
+  }
+}

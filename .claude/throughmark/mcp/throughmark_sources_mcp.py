@@ -71,9 +71,11 @@ def _gh_token():
 
 
 def gh_code_search(query, repo, limit):
-    """Search one approved repo via GitHub code search. Uses a token if present, else the gh CLI.
+    """Search approved code via GitHub code search. `repo` is EITHER 'owner/name' (one repo) OR a bare
+    'owner' (every repo that owner owns -> user:/org: scope). Uses a token if present, else the gh CLI.
     Degrades to [] (never raises) if neither is available or the call fails."""
-    q = f"{query} repo:{repo}"
+    scope = f"repo:{repo}" if "/" in repo else f"user:{repo}"   # bare owner => search all their repos
+    q = f"{query} {scope}"
     out = []
     tok = _gh_token()
     try:
@@ -111,8 +113,12 @@ def log_consultation(rec) -> str:
     key = f"consults/{rec.get('trace') or '_untraced'}/{rec['id']}.json"
     if bucket and which("gcloud"):
         try:
-            r = subprocess.run(["gcloud", "storage", "cp", "--if-generation-match=0", "-",
-                                f"gs://{bucket}/{key}"], input=payload, capture_output=True, timeout=20)
+            # TM_SINK_SA (a write-only capture SA, set by dev_setup) routes the consult write through that
+            # identity via gcloud's global --account, without touching the developer's default gcloud login.
+            _sa = os.environ.get("TM_SINK_SA", "").strip()
+            _cmd = ["gcloud", "storage", "cp"] + (["--account", _sa] if _sa else []) + \
+                   ["--if-generation-match=0", "-", f"gs://{bucket}/{key}"]
+            r = subprocess.run(_cmd, input=payload, capture_output=True, timeout=20)
             if r.returncode == 0:
                 return f"gs://{bucket}/{key}"
         except Exception:
