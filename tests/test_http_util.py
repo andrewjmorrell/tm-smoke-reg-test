@@ -154,6 +154,57 @@ class PutWithRetryTests(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 500)
 
 
+class PostWithRetryTests(unittest.TestCase):
+    @patch("http_util.urllib.request.urlopen")
+    def test_success_sends_post_with_json_body_and_headers(self, mock_urlopen):
+        mock_urlopen.return_value = _make_response(201, b"created")
+        payload = {"name": "widget", "count": 3}
+
+        result = http_util.post_with_retry("http://example.test/items", payload)
+
+        self.assertEqual(result, b"created")
+        mock_urlopen.assert_called_once()
+        sent_request = mock_urlopen.call_args[0][0]
+        self.assertEqual(sent_request.get_method(), "POST")
+        self.assertEqual(sent_request.full_url, "http://example.test/items")
+        self.assertEqual(json.loads(sent_request.data), payload)
+        self.assertEqual(sent_request.headers.get("Content-type"), "application/json")
+
+    @patch("http_util.time.sleep")
+    @patch("http_util.urllib.request.urlopen")
+    def test_retries_on_url_error_then_succeeds(self, mock_urlopen, mock_sleep):
+        mock_urlopen.side_effect = [
+            urllib.error.URLError("boom"),
+            _make_response(200, b"ok-after-retry"),
+        ]
+        result = http_util.post_with_retry(
+            "http://example.test/items", {"a": 1}, max_attempts=3
+        )
+        self.assertEqual(result, b"ok-after-retry")
+        self.assertEqual(mock_urlopen.call_count, 2)
+
+    @patch("http_util.time.sleep")
+    @patch("http_util.urllib.request.urlopen")
+    def test_exhausts_attempts_raises_last_exception(self, mock_urlopen, mock_sleep):
+        err = urllib.error.URLError("persistent failure")
+        mock_urlopen.side_effect = [err, err]
+        with self.assertRaises(urllib.error.URLError):
+            http_util.post_with_retry(
+                "http://example.test/items", {"a": 1}, max_attempts=2
+            )
+        self.assertEqual(mock_urlopen.call_count, 2)
+
+    @patch("http_util.time.sleep")
+    @patch("http_util.urllib.request.urlopen")
+    def test_5xx_status_is_retried_and_eventually_raises(self, mock_urlopen, mock_sleep):
+        mock_urlopen.return_value = _make_response(502, b"")
+        with self.assertRaises(urllib.error.HTTPError) as ctx:
+            http_util.post_with_retry(
+                "http://example.test/items", {"a": 1}, max_attempts=2
+            )
+        self.assertEqual(ctx.exception.code, 502)
+
+
 if __name__ == "__main__":
     unittest.main()
 # PROVENANCE-END: BOILERPLATE
